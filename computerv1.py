@@ -3,21 +3,30 @@ import sys
 def all_ex(split, sign):
     nbrs = []
     start = 0
+    print (sign)
     space_index = split.find(sign)
     while space_index != -1:
-        nbrs.attend(expression[start:space_index])
+        nbrs.append(split[start:space_index])
         start = (space_index + 1)
-        space_index = expression.find(sign, start)
-    nbrs.attend(expression[start:])
+        space_index = split.find(sign, start)
+    nbrs.append(split[start:])
+    return (nbrs)
 
 def split_eq(eq):
+    nbrs = []
     # separe les deux cotes
     j = 0
     split_half = eq.split('=')
     for split in split_half:
-        print('hello'.1)
-        #nbrs = all_ex(split, '+')
-
+        nbrs.append(all_ex(split, "+"))
+        for nb in nbrs[len(nbrs) - 1]:
+            tmp = all_ex(nb, '-')
+            if len(tmp) > 1:
+                i = 0
+                while i < len(tmp):
+                nbrs[len(nbrs) - 1] = tmp[i][len(nbrs) - 1]all_ex(nb, '-')
+                i++
+    return ('hello')
 
 # quand on lance le programme
 if __name__ == "__main__":
@@ -26,8 +35,3 @@ if __name__ == "__main__":
     if i == 2:
         eq = split_eq(sys.argv[1])
         print(eq)
-
-
-#faire une separation par les array de chaque expression ( + et -)
-#regarder les truc apres de X et comparer
-#conter les X^0, 1 et 2 dans les deux coté si ils sont plus de 1 alors faire calcul
