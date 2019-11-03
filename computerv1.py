@@ -43,12 +43,38 @@ def reduce_eq(eq):
                 j += 1
         new.append(count)
         i += 1
-    print new
-    return 0
+    i = 0
+    str_tmp = "Reduced form: "
+    while i < max:
+        if new[i] == 0:
+            del new[i]
+            del eq[i]
+            max -= 1
+        if i != 0 and new[i] > 0:
+            str_tmp += " + "
+        eq[i] = re.findall("([xX]\^\d+)", eq[i])[0]
+        str_tmp += str(new[i]) + " * " + eq[i]
+        i += 1
+    str_tmp = re.sub("\s*-\s*", " - ", str_tmp)
+    print str_tmp + ' = 0'
+    return [new, eq]
+
+def check_degre(eq):
+    count = 0
+    for all in eq:
+        tmp = int(re.findall("[xX]\^(\d+)", all)[0])
+        if count < tmp:
+            count = tmp
+    print "Polynomial degree: " + str(count)
+    if count > 2:
+        print "The polynomial degree is stricly greater than 2, I can't solve."
+        sys.exit(0)
+
 # quand on lance le programme
 if __name__ == "__main__":
     # verifier pas trop arguments? vous si 3 calculs possible en meme temps en bonus
     i = len(sys.argv)
     if i == 2:
         eq = split_eq(sys.argv[1])
-        reduce_eq(eq)
+        double_tab = reduce_eq(eq)
+        check_degre(double_tab[1])
