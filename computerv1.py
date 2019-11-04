@@ -88,7 +88,7 @@ def find_coef(tab_1,tab_2):
     print coef,
     return coef
 
-def racine_carre(delta):
+def racine_carre(delta): #j'aurai pu faire delta**0.5 mais je suis pas sur que ce soit autorisé
     x1 = (delta * 1.0) / 2 #le nombre max de la racine  1
     x2 = (x1 + (delta / x1)) / 2
     while (abs(x1 - x2) > 0):
