@@ -46,7 +46,7 @@ def reduce_eq(eq):
     i = 0
     str_tmp = "Reduced form: "
     while i < max:
-        if new[i] == 0:
+        if new[i] == 0 and max - 1 != i:
             del new[i]
             del eq[i]
             max -= 1
@@ -71,6 +71,15 @@ def check_degre(eq):
         sys.exit(0)
     return count
 
+def is_soluble(new):    #check if equation is soluble
+    ok = 0
+    for all in new:
+        if all != 0:
+            ok = 1
+    if ok == 0 :
+        print "X could be any real number."
+        sys.exit(0)
+
 def find_coef(tab_1,tab_2):
     count = 0
     coef = [None, None, None]
@@ -88,7 +97,7 @@ def find_coef(tab_1,tab_2):
     print coef,
     return coef
 
-def racine_carre(delta): #j'aurai pu faire delta**0.5 mais je suis pas sur que ce soit autorisé
+def racine_carre(delta): #j aurai pu faire delta**05 mais je suis pas sur que ce soit autorise
     x1 = (delta * 1.0) / 2 #le nombre max de la racine  1
     x2 = (x1 + (delta / x1)) / 2
     while (abs(x1 - x2) > 0):
@@ -119,6 +128,7 @@ if __name__ == "__main__":
         eq = split_eq(sys.argv[1])
         double_tab = reduce_eq(eq)
         degree = check_degre(double_tab[1])
+        is_soluble(double_tab[0])
         if degree == 2:
             solve_the_equation(double_tab[0], double_tab[1])
         else:
