@@ -6,7 +6,6 @@ import re
 def split_eq(eq):
     eq = re.sub("\s", '', eq)
     x = re.split("=", eq, 1)
-    print x
     side_1 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^\d+",x[0])
     side_2 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^\d+", x[1])
     for all in side_2:
@@ -16,9 +15,6 @@ def split_eq(eq):
             side_1.append('-' + all[1:])
         else:
             side_1.append('-' + all)
-    for expression in side_1:
-        print expression,
-    print '= 0'
     return (side_1)
 
 def reduce_eq(eq):
@@ -29,18 +25,11 @@ def reduce_eq(eq):
         match = re.findall("[xX]\^(\d+)", eq[i])[0]
         j = i + 1
         count = float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^\d+", eq[i])[0])
-        print count
         while j < max:
             if(match == re.findall("[xX]\^(\d+)", eq[j])[0]):
                 count = count + float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^\d+", eq[j])[0])
-                print j,
-                print " = ",
-                print count
-                print eq
                 del eq[j]
-                print eq
                 max -= 1
-                print max
             else:
                 j += 1
         new.append(count)
@@ -58,6 +47,7 @@ def reduce_eq(eq):
         str_tmp += str(new[i]) + " * " + eq[i]
         i += 1
     str_tmp = re.sub("\s*-\s*", " - ", str_tmp)
+    is_soluble([new, eq])
     print str_tmp + ' = 0'
     return [new, eq]
 
@@ -80,10 +70,13 @@ def is_soluble(double_tab):    #check if equation is soluble
         if int(re.findall("[xX]\^(\d+)", eq)[0]) != 0:
             expo_0 = 1
     for new in double_tab[0]:
-        if double_tab[0] != 0:
+        if new != 0:
             coef_0 = 1
-    if expo_0 == 0 or coef_0 == 0 :
+    if coef_0 == 0 :
         print "The solution could be any real number."
+        sys.exit(0)
+    elif expo_0 == 0:
+        print "There are no solution to this equation."
         sys.exit(0)
 
 def find_coef(tab_1,tab_2):
@@ -100,7 +93,6 @@ def find_coef(tab_1,tab_2):
         if coef[count] is None:
             coef[count] = 0
         count +=1
-    print coef,
     return coef
 
 def abs_1(nb):
@@ -128,7 +120,7 @@ def solve_the_equation(tab_1, tab_2):
         print("%.6f" % solution_1)
         print("%.6f" % solution_2)
     elif delta == 0:
-        print("The solution is:")
+        print("Discriminant is equal to zero, the solution is:")
         solution = (- coef[1]) / (2 * coef[2])
         print("%.6f" % solution)
     else:
@@ -151,9 +143,14 @@ if __name__ == "__main__":
         eq = split_eq(sys.argv[1])
         double_tab = reduce_eq(eq)
         degree = check_degre(double_tab[1])
-        is_soluble(double_tab)
         if degree == 2:
             solve_the_equation(double_tab[0], double_tab[1])
         else:
-
-            print "a faire plus tard"
+            coef = find_coef(double_tab[0],double_tab[1])
+            print ("The solution is:")
+            if coef[0] != 0:
+                solution = -coef[0]
+            if coef[1] != 0:
+                solution /= coef[1]
+            print("%.6f" % solution)
+            sys.exit(0)
