@@ -6,15 +6,16 @@ import re
 def split_eq(eq):
     eq = re.sub("\s", '', eq)
     x = re.split("=", eq, 1)
-    side_1 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^\d+",x[0])
-    side_2 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^\d+", x[1])
+    side_1 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX](?:-|[+])?\^(?:-|[+])?(?:\d*\.)?\d+",x[0])
+    side_2 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^(?:-|[+])?(?:\d*\.)?\d+", x[1])
     for all in side_2:
-        if all[0] == '-':
-            side_1.append('+' + all[1:])
-        elif all[0] == '+':
-            side_1.append('-' + all[1:])
-        else:
-            side_1.append('-' + all)
+        if float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^(?:-|[+])?(?:\d*\.)?\d+", all)[0]) != 0:
+            if all[0] == '-':
+                side_1.append('+' + all[1:])
+            elif all[0] == '+':
+                side_1.append('-' + all[1:])
+            else:
+                side_1.append('-' + all)
     return (side_1)
 
 def reduce_eq(eq):
@@ -22,12 +23,12 @@ def reduce_eq(eq):
     i = 0
     max = len(eq)
     while i < max:
-        match = re.findall("[xX]\^(\d+)", eq[i])[0]
+        match = float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", eq[i])[0])
         j = i + 1
-        count = float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^\d+", eq[i])[0])
+        count = float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^(?:-|[+])?(?:\d*\.)?\d+", eq[i])[0])
         while j < max:
-            if(match == re.findall("[xX]\^(\d+)", eq[j])[0]):
-                count = count + float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^\d+", eq[j])[0])
+            if(match == float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", eq[j])[0])):
+                count = count + float(re.findall("((?:(?:-|[+])\s*)?(?:\d*\.)?\d+)\s*\*\s*[xX]\^(?:-|[+])?(?:\d*\.)?\d+", eq[j])[0])
                 del eq[j]
                 max -= 1
             else:
@@ -43,8 +44,10 @@ def reduce_eq(eq):
             max -= 1
         if i != 0 and new[i] > 0:
             str_tmp += " + "
-        eq[i] = re.findall("([xX]\^\d+)", eq[i])[0]
-        str_tmp += str(new[i]) + " * " + eq[i]
+        eq[i] = re.findall("([xX]\^(?:-|[+])?(?:\d*\.)?\d+)", eq[i])[0]
+        if new[i] == int(new[i]):
+            new[i] = int(new[i])
+        str_tmp += str(new[i]) + " * X^" + str(int(float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", eq[i])[0])))
         i += 1
     str_tmp = re.sub("\s*-\s*", " - ", str_tmp)
     is_soluble([new, eq])
@@ -54,7 +57,7 @@ def reduce_eq(eq):
 def check_degre(eq):
     count = 0
     for all in eq:
-        tmp = int(re.findall("[xX]\^(\d+)", all)[0])
+        tmp = int(float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", all)[0]))
         if count < tmp:
             count = tmp
     print "Polynomial degree: " + str(count)
@@ -63,11 +66,15 @@ def check_degre(eq):
         sys.exit(0)
     return count
 
-def is_soluble(double_tab):    #check if equation is soluble
+def is_soluble(double_tab):
     expo_0 = 0
     coef_0 = 0
     for eq in double_tab[1]:
-        if int(re.findall("[xX]\^(\d+)", eq)[0]) != 0:
+        expo_recup = float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", eq)[0])
+        if expo_recup < 0 or expo_recup != int(expo_recup):
+            print "There is a problem with at least one of your exponents. I can only process positive integers as exponents."
+            sys.exit(0)
+        if int(float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", eq)[0])) != 0:
             expo_0 = 1
     for new in double_tab[0]:
         if new != 0:
@@ -86,7 +93,7 @@ def find_coef(tab_1,tab_2):
     while count < 3:
         i = 0
         while i < max:
-            tmp = int(re.findall("[xX]\^(\d+)", tab_2[i])[0])
+            tmp = int(float(re.findall("[xX]\^((?:-|[+])?(?:\d*\.)?\d+)", tab_2[i])[0]))
             if tmp == count:
                 coef[count] = tab_1[i]
             i += 1
@@ -102,13 +109,19 @@ def abs_1(nb):
         nb = (nb * nb) / nb
     return nb
 
-def racine_carre(delta): #j aurai pu faire delta**05 mais je suis pas sur que ce soit autorise
-    x1 = (delta * 1.0) / 2 #le nombre max de la racine  1
+def racine_carre(delta):
+    x1 = (delta * 1.0) / 2
     x2 = (x1 + (delta / x1)) / 2
     while (abs_1(x1 - x2) > 0):
-        x1 = x2                        #on le passe parce que ce seront les meme resultats de toute facon
-        x2 = (x1 + (delta / x1)) / 2 # la racine est trouve quand 9 / 3 = 3 et 3 + 3 /2  = 3
+        x1 = x2
+        x2 = (x1 + (delta / x1)) / 2
     return x2
+
+def print_int_or_float(solution):
+    if solution == int(solution):
+        print(int(solution))
+    else:
+        print("%g" % solution)
 
 def solve_the_equation(tab_1, tab_2):
     coef = find_coef(tab_1,tab_2)
@@ -117,12 +130,12 @@ def solve_the_equation(tab_1, tab_2):
         print ("Discriminant is strictly positive, the two solutions are:")
         solution_1 = (- coef[1] - racine_carre(delta)) / (2 * coef[2])
         solution_2 = (- coef[1] + racine_carre(delta)) / (2 * coef[2])
-        print("%.6f" % solution_1)
-        print("%.6f" % solution_2)
+        print_int_or_float(solution_1)
+        print_int_or_float(solution_2)
     elif delta == 0:
         print("Discriminant is equal to zero, the solution is:")
         solution = (- coef[1]) / (2 * coef[2])
-        print("%.6f" % solution)
+        print_int_or_float(solution)
     else:
         print ("Discriminant is strictly negative, this equations has no solutions in real numbers but two solutions in complex numbers that are:")
         print "(",
@@ -135,9 +148,7 @@ def solve_the_equation(tab_1, tab_2):
         print "i√(", -delta, ")) / ", (2 * coef[2]), ")"
     return 0
 
-# quand on lance le programme
 if __name__ == "__main__":
-    # verifier pas trop arguments? vous si 3 calculs possible en meme temps en bonus
     i = len(sys.argv)
     if i == 2:
         eq = split_eq(sys.argv[1])
@@ -148,9 +159,10 @@ if __name__ == "__main__":
         else:
             coef = find_coef(double_tab[0],double_tab[1])
             print ("The solution is:")
+            solution = 0.0
             if coef[0] != 0:
-                solution = -coef[0]
+                solution -= coef[0]
             if coef[1] != 0:
-                solution /= coef[1]
-            print("%.6f" % solution)
+                solution /= coef[1] * 1.0
+            print_int_or_float(solution)
             sys.exit(0)
