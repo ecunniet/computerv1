@@ -6,6 +6,9 @@ import re
 def split_eq(eq):
     eq = re.sub("\s", '', eq)
     x = re.split("=", eq, 1)
+    if len(x) < 2:
+        print "There is a problem with your equation."
+        sys.exit(0);
     side_1 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX](?:-|[+])?\^(?:-|[+])?(?:\d*\.)?\d+",x[0])
     side_2 = re.findall("(?:(?:-|[+])\s*)?(?:\d*\.)?\d+\s*\*\s*[xX]\^(?:-|[+])?(?:\d*\.)?\d+", x[1])
     for all in side_2:
