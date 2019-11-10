@@ -19,6 +19,7 @@ def split_eq(eq):
                 side_1.append('-' + all[1:])
             else:
                 side_1.append('-' + all)
+    print side_1
     return (side_1)
 
 def reduce_eq(eq):
@@ -41,10 +42,17 @@ def reduce_eq(eq):
     i = 0
     str_tmp = "Reduced form: "
     while i < max:
-        if new[i] == 0 and max - 1 != i:
-            del new[i]
-            del eq[i]
-            max -= 1
+        print new[i]
+        if new[i] == 0:
+            while new[i] == 0:
+                print "hello" + str(eq[i])
+                del new[i]
+                del eq[i]
+                max -= 1
+                if max == i:
+                    break
+        if max <= i:
+            break
         if i != 0 and new[i] > 0:
             str_tmp += " + "
         eq[i] = re.findall("([xX]\^(?:-|[+])?(?:\d*\.)?\d+)", eq[i])[0]
